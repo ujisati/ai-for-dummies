@@ -1,14 +1,16 @@
-# Serverless AI for Dummies
+<h1><div align="center">☁️ Serverless AI for Dummies🦙</div></h1>
 
-I am a dummy. If you are a dummy like me, then these tools are for you.
+> Inference.
+> 
+> *Fast*, *free*, and *from anywhere*.
+
+Tools for Modal.
 
 ## Tools
 
 ### My Llamas
 
 My Llamas is a Modal app that can download individual or multipart files from Huggingface to a Modal volume. The app has a scale-to-zero Ollama GPU inference server with Token authentication through FastAPI. Look at the docs for the Ollama REST API. The FastAPI server just proxies them to the Ollama server running in the container. Connect from a chat client of your choice like open-webui. You can also use `client.py`. See helpers.
-
-You get $30 of compute per month on Modal. Cool!
 
 #### Run
 
@@ -22,6 +24,7 @@ You get $30 of compute per month on Modal. Cool!
   modal setup
   modal run tame_llama --config-id <id> # Download/create model. See Config section.
   modal deploy my_llamas
+  source helpers.sh; chat # inference is that easy now???
   modal app stop MyLlamas
 ```
 
