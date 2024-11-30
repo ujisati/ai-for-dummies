@@ -4,7 +4,7 @@
 > 
 > *Fast*, *free*, and *from anywhere*.
 
-Tools for Modal.
+Tools for Modal. Intended for personal use and experiments.
 
 ## Tools
 
