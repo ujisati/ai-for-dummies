@@ -71,7 +71,7 @@ journalctl -u ollama --no-pager
 #### Sanity check if client.py isn't working
 
 ```bash
-curl https://ujisati--myllama-serve.modal.run/api/chat -d '{
+curl https://ujisati--myllamas-myllamas-serve.modal.run/api/chat -d '{
   "model": "Luminum",
   "messages": [
     {
