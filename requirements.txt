@@ -1,0 +1,6 @@
+fastapi==0.115.5
+httpx==0.28.0
+huggingface_hub==0.26.2
+modal==0.67.3
+openai==1.55.3
+pydantic==2.10.2

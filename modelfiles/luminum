@@ -1,0 +1,5 @@
+FROM /models/mradermacher/Luminum-v0.1-123B-i1-GGUF/Luminum-v0.1-123B.i1-IQ3_XS.gguf
+
+TEMPLATE """<s>[INST]<<SYS>>{{ .System }}<</SYS>> {{ .Prompt }} [/INST] {{ .Response }}</s>"""
+PARAMETER stop "</s>"
+
