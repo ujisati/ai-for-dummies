@@ -25,7 +25,7 @@ except modal.exception.NotFoundError:
 
 
 app = modal.App(
-    f"MyLlamas-GPU-{str(AppSettings.gpu).replace(':', '1')}",
+    f"MyLlamas-GPU-{str(AppSettings.gpu).replace(':', '-')}",
     secrets=[
         modal.Secret.from_name("huggingface-secret"),
         modal.Secret.from_name("llama-food"),
