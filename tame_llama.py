@@ -1,8 +1,8 @@
 from ast import Module
 from pathlib import Path
-from config import DownloadSettings, AppSettings
-import modal
 
+import modal
+from settings import AppSettings
 
 volume = modal.Volume.from_name(str(AppSettings.MODELS_DIR)[1:], create_if_missing=True)
 
@@ -31,13 +31,30 @@ app = modal.App(image=image, secrets=[modal.Secret.from_name("huggingface-secret
 
 
 @app.function(
-    volumes={str(AppSettings.MODELS_DIR): volume}, timeout=4 * AppSettings.HOURS
+    volumes={str(AppSettings.MODELS_DIR): volume},
+    timeout=4 * AppSettings.HOURS,
+    gpu=AppSettings.pull.gpu,
 )
-def download(config_id):
-    import os
-    from huggingface_hub import hf_hub_download, HfFileSystem
+def pull():
+    import subprocess
+    import time
 
-    settings = DownloadSettings.from_config(config_id)
+    subprocess.Popen(["ollama", "serve"], close_fds=True)
+    time.sleep(2)
+    subprocess.run(["ollama", "pull", AppSettings.pull.ollama_id], check=True)
+    volume.commit()
+
+
+@app.function(
+    volumes={str(AppSettings.MODELS_DIR): volume},
+    timeout=4 * AppSettings.HOURS,
+)
+def download():
+    import os
+
+    from huggingface_hub import HfFileSystem, hf_hub_download
+
+    settings = AppSettings.download
     hf_path, revision, multipart = (
         settings.hf_path,
         settings.revision,
@@ -95,14 +112,14 @@ def download(config_id):
 
 @app.function(
     volumes={str(AppSettings.MODELS_DIR): volume},
-    gpu=modal.gpu.A100(count=1),
+    gpu=AppSettings.download.gpu,
     timeout=4 * AppSettings.HOURS,
 )
-def compile(config_id: str):
+def compile():
     import subprocess
     import time
 
-    settings = DownloadSettings.from_config(config_id)
+    settings = AppSettings.download
     subprocess.Popen(["ollama", "serve"], close_fds=True)
     time.sleep(2)
     subprocess.run(
@@ -116,9 +133,3 @@ def compile(config_id: str):
         check=True,
     )
     volume.commit()
-
-
-@app.local_entrypoint()
-def main(config_id):
-    download.remote(config_id)
-    compile.remote(config_id)

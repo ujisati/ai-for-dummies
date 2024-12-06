@@ -1,9 +1,8 @@
-import modal
-from config import AppSettings
 import os
 
+import modal
+from settings import AppSettings
 
-N_GPU = 1
 image = (
     modal.Image.debian_slim()
     .apt_install("curl", "lshw")
@@ -26,7 +25,7 @@ except modal.exception.NotFoundError:
 
 
 app = modal.App(
-    "MyLlamas",
+    f"MyLlamas-GPU-{str(AppSettings.gpu).replace(':', '1')}",
     secrets=[
         modal.Secret.from_name("huggingface-secret"),
         modal.Secret.from_name("llama-food"),
@@ -36,30 +35,32 @@ app = modal.App(
 
 @app.cls(
     image=image,
-    gpu=modal.gpu.H100(count=N_GPU),
+    gpu=AppSettings.gpu,
     container_idle_timeout=5 * AppSettings.MINUTES,
     timeout=3 * AppSettings.MINUTES,
     allow_concurrent_inputs=1,
     volumes={AppSettings.MODELS_DIR: volume},
 )
 class MyLlamas:
+
     @modal.enter()
     def enter(self):
         import subprocess
         import time
 
         subprocess.Popen(["ollama", "serve"], close_fds=True)
-        time.sleep(3)
+        time.sleep(2)
 
     @modal.asgi_app()
     def serve(self):
-        import fastapi
-        import starlette
-        import httpx
         import os
-        from fastapi.middleware.cors import CORSMiddleware
-        from contextlib import asynccontextmanager, contextmanager
         import time
+        from contextlib import asynccontextmanager, contextmanager
+
+        import fastapi
+        import httpx
+        import starlette
+        from fastapi.middleware.cors import CORSMiddleware
 
         volume.reload()
 

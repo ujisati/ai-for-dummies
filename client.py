@@ -2,8 +2,9 @@
 
 import argparse
 
-import modal
 from openai import OpenAI
+
+import modal
 
 
 class Colors:
