@@ -16,9 +16,9 @@ You get $30 of free credits per month from Modal.
 
 #### Config
 
-All of the models you want to store, whether through Ollama or Huggingface, are stored in `args.py`. Create it and fill it with the following example.
+All of the models you want to store, whether through Ollama or Huggingface, are stored in `args.py`. Create this file in the project root and fill it with the following example.
 
-The beauty here is you can create as many configs as you like and all the models will be downloaded and built to the volume.
+The beauty here is you can create as many configs as you like and all the models can be downloaded and built to the volume.
 
 ```python
 from typing import Literal
@@ -31,13 +31,15 @@ DOWNLOAD = {
         "gpu": "t4:1",
     },
 }
-DOWNLOAD_DEFAULT = "luminum"
+DOWNLOAD_DEFAULT = "qwen"
 
 PULL = {"qwq": {"gpu": "l4:1"}}
 PULL_DEFAULT = "qwq"
 
 CHOSEN_SOURCE: Literal["download"] | Literal["pull"] = "download"
 ```
+
+Set the `CHOSEN_SOURCE` to `pull` or `download` depending on if you want to deploy a model you pulled or deploy one you downloaded. It will use the respective config to create/use the Modal app with that config's GPU size.
 
 ##### Ollama source
 
