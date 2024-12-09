@@ -6,7 +6,7 @@ Tools for Modal. Intended for personal use and experiments.
 
 ### My Llamas
 
-My Llamas is a Modal app that can download models to a Modal volume. You can specify Ollama model names, or specify Huggingface paths to files, including multipart files.
+My Llamas is a Modal app that can download models to a Modal volume. You can specify Ollama model names to have ollama manage pulling them to the `.ollama` directory in the volume, or specify Huggingface paths to files, including multipart files.
 
 The app has a scale-to-zero Ollama inference server with token authentication through FastAPI. The FastAPI app just proxies requests to the Ollama REST server running in the container.
 
