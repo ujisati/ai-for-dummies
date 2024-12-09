@@ -1,18 +1,27 @@
+from enum import Enum
 from functools import cached_property
 from pathlib import Path
 
 from pydantic import BaseModel, field_validator
 
 import args
+import modal
+
+
+class DownloadType(str, Enum):
+    single = "single"
+    multipart = "multipart"
+    snapshot = "snapshot"
 
 
 class DownloadSettings(BaseModel):
     hf_path: Path
     revision: str | None = None
-    multipart: bool = False
+    download_type: DownloadType
     pet_name: str
     modelfile: str
     gpu: str | None = "t4:1"
+    allow_patterns: list[str] | None = None
 
     @field_validator("hf_path", mode="before")
     def ensure_path_is_path_object(cls, v):
@@ -48,6 +57,10 @@ class AppSettings(BaseModel):
     @cached_property
     def MODELS_FOLDER_NAME(self):
         return str(self.MODELS_DIR)[1:]
+
+    @cached_property
+    def models_volume(self):
+        return modal.Volume.from_name(str(self.MODELS_DIR)[1:], create_if_missing=True)
 
     @classmethod
     def init(cls):

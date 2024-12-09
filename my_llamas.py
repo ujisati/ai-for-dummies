@@ -37,7 +37,7 @@ app = modal.App(
     image=image,
     gpu=AppSettings.gpu,
     container_idle_timeout=5 * AppSettings.MINUTES,
-    timeout=3 * AppSettings.MINUTES,
+    timeout=5 * AppSettings.MINUTES,
     allow_concurrent_inputs=1,
     volumes={AppSettings.MODELS_DIR: volume},
 )

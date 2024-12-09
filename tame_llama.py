@@ -1,8 +1,10 @@
 from ast import Module
 from pathlib import Path
 
+from pydantic import AllowInfNan
+
 import modal
-from settings import AppSettings
+from settings import AppSettings, DownloadType
 
 volume = modal.Volume.from_name(str(AppSettings.MODELS_DIR)[1:], create_if_missing=True)
 
@@ -52,22 +54,27 @@ def pull():
 def download():
     import os
 
-    from huggingface_hub import HfFileSystem, hf_hub_download
+    from huggingface_hub import (HfFileSystem, hf_hub_download,
+                                 snapshot_download)
 
     settings = AppSettings.download
-    hf_path, revision, multipart = (
+    hf_path, revision, download_type = (
         settings.hf_path,
         settings.revision,
-        settings.multipart,
+        settings.download_type,
     )
 
     volume.reload()
 
     final_filename = hf_path.name
 
-    repo_id = "/".join([part for part in hf_path.parts if part not in ("", "/")][0:2])
+    repo_id = (
+        str(hf_path)
+        if download_type == DownloadType.snapshot
+        else "/".join([part for part in hf_path.parts if part not in ("", "/")][0:2])
+    )
 
-    if multipart:
+    if download_type == DownloadType.multipart:
         fs = HfFileSystem()
         part_filenames = [
             file.split("/")[-1]
@@ -97,15 +104,26 @@ def download():
                 print(f"Appended {filename} to {final_filename}")
 
         print(f"Reconstructed {final_filepath} successfully.")
-    else:
-        print(f"Downloading snapshot for {hf_path}")
+    elif download_type == DownloadType.single:
+        print(f"Downloading {final_filename}")
         hf_hub_download(
             repo_id=repo_id,
             filename=final_filename,
             revision=revision,
             local_dir=AppSettings.MODELS_DIR / repo_id,
         )
-        print(f"Downloaded snapshot for {hf_path}")
+        print(f"Downloaded {final_filename}")
+    elif download_type == DownloadType.snapshot:
+        print(f"Downloading {repo_id}")
+        snapshot_download(
+            repo_id=repo_id,
+            revision=revision,
+            local_dir=AppSettings.MODELS_DIR / repo_id,
+            allow_patterns=AppSettings.download.allow_patterns,
+        )
+        print(f"Downloaded {repo_id}")
+    else:
+        print("Unknown download type")
 
     volume.commit()
 
