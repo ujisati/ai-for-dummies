@@ -4,9 +4,25 @@ from settings import AppSettings
 
 volume = AppSettings.models_volume
 
-image = modal.Image.debian_slim(python_version="3.10").pip_install(
-    # TODO: repeng disallows gguf .10
-    ["pydantic", "repeng", "transformers", "sentencepiece", "gguf>=0.10.0"]
+image = (
+    modal.Image.debian_slim(python_version="3.10")
+    .pip_install(
+        [
+            "pydantic",
+            "transformers",
+            "sentencepiece",
+            "huggingface-hub",
+            "numpy==1.26.3",
+            "scikit-learn==1.4.0",
+            "torch==2.1.2",
+            "transformers==4.36.2",
+            "accelerate==0.26.1",
+            "tqdm==4.66.1",
+            "gguf==0.10.0",
+        ]
+    ).run_commands(
+        "pip install repeng --no-deps",
+    )
 )
 
 app = modal.App(image=image, secrets=[modal.Secret.from_name("huggingface-secret")])
